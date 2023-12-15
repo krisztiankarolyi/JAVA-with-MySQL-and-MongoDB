@@ -42,6 +42,13 @@
             <version>8.0.28</version> <!-- Az aktuális verziót alkalmazd -->
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.4.1</version> <!-- vagy a legfrissebb verziót használd -->
+        </dependency>
+
+
     </dependencies>
 
 </project>
