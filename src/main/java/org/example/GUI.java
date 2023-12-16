@@ -24,6 +24,8 @@ public class GUI {
     private JTable mysqlGazdaTable;
     private JTable mysqlKutyaTable;
     private JTextArea mongoDBDocumentArea;
+    public boolean mySQLConnected = false;
+    public boolean mongodbConnected = false;
 
     private GUI self;
 
@@ -142,7 +144,8 @@ public class GUI {
 
         testMySQLButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(Main.connectMySQL())
+                mySQLConnected = Main.connectMySQL();
+                if(mySQLConnected)
                 {
                     mySQLConnectionStateText.setForeground(Color.green);
                     mySQLConnectionStateText.setText("MySQL connection: OK");
@@ -162,7 +165,8 @@ public class GUI {
 
         testMongoDBButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(Main.connectMongoDB())
+                mongodbConnected = Main.connectMongoDB();
+                if(mongodbConnected)
                 {
                     mongoDBConnectionStateText.setForeground(Color.green);
                     mongoDBConnectionStateText.setText("MongoDB connection: OK");

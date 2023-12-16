@@ -9,11 +9,15 @@ public class newOwner {
     private JFrame frame;
     private JTextField nameTextField;
     private JTextField ageTextField;
+    private  JButton addToMongoDBButton;
+    private  JButton addToMySQLButton;
     private GUI MainGUI;
 
     public newOwner(GUI MainGUI) {
         this.MainGUI = MainGUI;
         initialize();
+        addToMySQLButton.setEnabled(MainGUI.mySQLConnected);
+        addToMongoDBButton.setEnabled(MainGUI.mongodbConnected);
     }
 
     private void initialize() {
@@ -49,12 +53,12 @@ public class newOwner {
         gbc.gridy = 1;
         panel.add(ageTextField, gbc);
 
-        JButton addToMySQLButton = new JButton("Add to MySQL");
+        addToMySQLButton = new JButton("Add to MySQL");
         gbc.gridx = 0;
         gbc.gridy = 2;
         panel.add(addToMySQLButton, gbc);
 
-        JButton addToMongoDBButton = new JButton("Add to MongoDB");
+        addToMongoDBButton = new JButton("Add to MongoDB");
         gbc.gridx = 1;
         gbc.gridy = 2;
         panel.add(addToMongoDBButton, gbc);

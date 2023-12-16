@@ -6,20 +6,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class newDog {
+
     private JFrame frame;
     private JTextField nameTextField;
     private JTextField breedTextField;
     private JTextField ownerIdTextField;
+    private  JButton addToMongoDBButton;
+    private  JButton addToMySQLButton;
+    private  JTextArea commandArea;
     private GUI MainGUI;
 
     public newDog(GUI MainGUI) {
         this.MainGUI = MainGUI;
         initialize();
+        addToMySQLButton.setEnabled(MainGUI.mySQLConnected);
+        addToMongoDBButton.setEnabled(MainGUI.mongodbConnected);
+
     }
 
     private void initialize() {
         frame = new JFrame();
-        frame.setTitle("New Owner Form");
+        frame.setTitle("New Dog Form");
         frame.setBounds(100, 100, 300, 200);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -60,15 +67,22 @@ public class newDog {
         gbc.gridy = 2;
         panel.add(ownerIdTextField, gbc);
 
-        JButton addToMySQLButton = new JButton("Add to MySQL");
+       addToMySQLButton = new JButton("Add to MySQL");
         gbc.gridx = 0;
         gbc.gridy = 3;
         panel.add(addToMySQLButton, gbc);
 
-        JButton addToMongoDBButton = new JButton("Add to MongoDB");
+        addToMongoDBButton = new JButton("Add to MongoDB");
         gbc.gridx = 1;
         gbc.gridy = 3;
         panel.add(addToMongoDBButton, gbc);
+
+        commandArea = new JTextArea("");
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.gridy = 4;
+        commandArea.setEditable(false);
+        panel.add(commandArea, gbc);
 
         addToMySQLButton.addActionListener(new ActionListener() {
             @Override
@@ -98,6 +112,27 @@ public class newDog {
         MainGUI.refreshMySQLData();
     }
 
+    public  String showUpdateJSON(Kutya kutya){
+        return  "{\n" +
+                "  \"update\": \"gazdak\",\n" +
+                "  \"updates\": [\n" +
+                "    {\n" +
+                "      \"q\": {\n" +
+                "        \"_id\": " + kutya.getGazda_id() + "\n" +
+                "      },\n" +
+                "      \"u\": {\n" +
+                "        \"$push\": {\n" +
+                "          \"kutyak\": {\n" +
+                "            \"nev\": \"" + kutya.getNev() + "\",\n" +
+                "            \"fajta\": \"" + kutya.getFajta() + "\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+    }
+
     private void addDogToMongoDB() {
         String name = nameTextField.getText();
         String breed = breedTextField.getText();
@@ -105,6 +140,7 @@ public class newDog {
         Kutya kutya = new Kutya(name, breed, owner_id);
 
         Main.mongoDBConnectionManager.insertKutya(kutya);
+        commandArea.setText(showUpdateJSON(kutya));
         JOptionPane.showMessageDialog(frame, "Dog added to MongoDB successfully");
         MainGUI.refreshMongoData();
 
