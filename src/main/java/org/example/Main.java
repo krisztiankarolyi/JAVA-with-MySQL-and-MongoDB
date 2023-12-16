@@ -18,14 +18,13 @@ public class Main {
     public static void main(String[] args) {
         GUI mainGUI = new GUI();
         mainGUI.display();
-
-     //   mySQLConnectionManager.closeConnection();
-      //  mongoDBConnectionManager.closeClient();
+        mySQLConnectionManager.closeConnection();
+        mongoDBConnectionManager.closeClient();
     }
 
-    public static boolean connectMySQL(){
+    public static boolean connectMySQL(String url){
         try{
-            mySQLConnectionManager = new MySQLConnectionManager();
+            mySQLConnectionManager = new MySQLConnectionManager(url);
 
             if(mySQLConnectionManager.isConnectionValid())
             {
@@ -43,9 +42,9 @@ public class Main {
         return  false;
     }
 
-    public static  boolean connectMongoDB(){
+    public static  boolean connectMongoDB(String url){
         try{
-            mongoDBConnectionManager  = new MongoDBConnectionManager();
+            mongoDBConnectionManager  = new MongoDBConnectionManager(url);
             if(mongoDBConnectionManager.isConnectionValid())
             {
                 return true;
@@ -121,15 +120,14 @@ public class Main {
         }
     }
 
-
-
     public static void createMongoDBTables() {
-        try {
-            // Drop existing collections
+        try
+        {
             mongoDBConnectionManager.dropCollectionIfExists("gazdak");
-            // Create 'gazdak' collection
+
             mongoDBConnectionManager.createGazdakCollection();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
         }
     }

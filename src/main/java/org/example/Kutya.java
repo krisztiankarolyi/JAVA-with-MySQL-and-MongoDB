@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 public class Kutya {
     private String nev;
     private String fajta;
+    private int id;
     @JsonIgnore
     private int gazda_id;
 
@@ -15,6 +16,14 @@ public class Kutya {
         this.nev = nev;
         this.fajta = fajta;
         this.gazda_id = gazda_id;
+        this.id = 0;
+    }
+
+    public Kutya(String nev, String fajta, int gazda_id, int id) {
+        this.nev = nev;
+        this.fajta = fajta;
+        this.gazda_id = gazda_id;
+        this.id = id;
     }
 
     public String toString() {
@@ -36,6 +45,9 @@ public class Kutya {
 
     public String getNev() {
         return nev;
+    }
+    public int getId() {
+        return id;
     }
 
     public void setNev(String nev) {

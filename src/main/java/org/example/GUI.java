@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GUI {
     private JFrame frame;
@@ -24,6 +25,8 @@ public class GUI {
     private JTable mysqlGazdaTable;
     private JTable mysqlKutyaTable;
     private JTextArea mongoDBDocumentArea;
+    private JTextField mongoURLTextField;
+    private JTextField mySQLURLTextField;
     public boolean mySQLConnected = false;
     public boolean mongodbConnected = false;
 
@@ -47,34 +50,38 @@ public class GUI {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);  // Távolságok beállítása
 
-        testMySQLButton = new JButton("Test MySQL Connection");
+        testMySQLButton = new JButton("Establish MySQL Connection");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         panel.add(testMySQLButton, gbc);
 
-        testMongoDBButton = new JButton("Test MongoDB Connection");
-        gbc.gridx = 1;  // Két oszlopos elrendezés esetén a második oszlopba tesszük
+        testMongoDBButton = new JButton("Establish MongoDB Connection");
+        gbc.gridx = 1;
+        gbc.gridy = 0;
         panel.add(testMongoDBButton, gbc);
-
-
 
         JTextArea mySQLConnectionStateText = new JTextArea("MySQL connection state: not tested yet");
         JTextArea mongoDBConnectionStateText = new JTextArea("MongoDB connection state: not tested yet");
+
         mySQLConnectionStateText.setEditable(false);
         mongoDBConnectionStateText.setEditable(false);
+
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(mySQLConnectionStateText, gbc);
 
         gbc.gridx = 1;
+        gbc.gridy = 1;
         panel.add(mongoDBConnectionStateText, gbc);
 
-        clearMongoDBButton = new JButton("Clear mongoDB documents");
-        gbc.gridy = 3;
+        clearMongoDBButton = new JButton("Clear && Rebuild mongoDB documents");
+        gbc.gridy = 2;
         gbc.gridx = 1;
         clearMongoDBButton.setEnabled(false);
         panel.add(clearMongoDBButton, gbc);
 
-        clearMySQLButton = new JButton("Clear mySQL tables");
-        gbc.gridy = 3;
+        clearMySQLButton = new JButton("Clear && Rebuild mySQL tables");
+        gbc.gridy = 2;
         gbc.gridx = 0;
         clearMySQLButton.setEnabled(false);
         panel.add(clearMySQLButton, gbc);
@@ -82,12 +89,13 @@ public class GUI {
         fakeDataMySQLButton = new JButton("Insert Test Data to MySQL");
         fakeDataMySQLButton.setEnabled(false);
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         panel.add(fakeDataMySQLButton, gbc);
 
         fakeDataMongoDBButton = new JButton("Insert Test Data to MongoDB");
         fakeDataMongoDBButton.setEnabled(false);
         gbc.gridx = 1;
+        gbc.gridy = 3;
         panel.add(fakeDataMongoDBButton, gbc);
 
         mysqlGazdaTable = new JTable();
@@ -126,25 +134,39 @@ public class GUI {
         gbc.gridx = 0;
         gbc.gridy = 6;
         gbc.gridheight = 1;
-        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 0.08;
         panel.add(newGazdabtn, gbc);
 
         newKutyaBtn = new JButton("new dog");
         newKutyaBtn.setEnabled(false);
-        gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridx = 1;
+        gbc.gridy = 6;
         gbc.gridheight = 1;
-        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 0.08;
         panel.add(newKutyaBtn, gbc);
 
 
+        mySQLURLTextField = new JTextField();
+        gbc.gridy = 7;
+        gbc.gridx = 0;
+        mySQLURLTextField.setText("localhost:3306/dbProject");
+        panel.add(mySQLURLTextField,  gbc);
+
+        mongoURLTextField = new JTextField();
+        gbc.gridy = 7;
+        gbc.gridx = 1;
+        mongoURLTextField.setText("localhost:27017/dbProject");
+        panel.add(mongoURLTextField, gbc);
+
+
         testMySQLButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mySQLConnected = Main.connectMySQL();
+                if(Main.mySQLConnectionManager != null)
+                 Main.mySQLConnectionManager.closeConnection();
+
+                mySQLConnected = Main.connectMySQL(mySQLURLTextField.getText());
                 if(mySQLConnected)
                 {
                     mySQLConnectionStateText.setForeground(Color.green);
@@ -165,7 +187,10 @@ public class GUI {
 
         testMongoDBButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mongodbConnected = Main.connectMongoDB();
+                if(Main.mongoDBConnectionManager != null)
+                     Main.mongoDBConnectionManager.closeClient();
+
+                mongodbConnected = Main.connectMongoDB(mongoURLTextField.getText());
                 if(mongodbConnected)
                 {
                     mongoDBConnectionStateText.setForeground(Color.green);
@@ -234,10 +259,13 @@ public class GUI {
         });
     }
 
-    public void refreshMongoData(){
-        String gazdak = Main.mongoDBConnectionManager.getGazdakAsString();
-        this.mongoDBDocumentArea.setText(gazdak);
+    public void refreshMongoData() {
+        this.mongoDBDocumentArea.setText("");
+        List<String> gazdak = Main.mongoDBConnectionManager.getGazdakAsList();
 
+        for (String gazda : gazdak) {
+            this.mongoDBDocumentArea.append(gazda + "\n\n");
+        }
     }
 
     public void refreshMySQLData(){

@@ -26,20 +26,26 @@ public class MongoDBConnectionManager {
     public MongoDBConnectionManager() {
         this.mongoClient = MongoClients.create("mongodb://localhost:27017");
         database = mongoClient.getDatabase("dbProjekt");
-        Logger.getLogger("org.mongodb.driver").setLevel(Level.OFF);
-
     }
 
-    public boolean isConnectionValid() {
-        try {
-            // Próbáld meg lekérdezni egy dokumentumot
-            Document ping = database.runCommand(new Document("ping", 1));
+    public MongoDBConnectionManager(String url) {
+        String URL = url.split("/")[0];
+        String db = url.split("/")[1];
+        this.mongoClient = MongoClients.create("mongodb://" + URL);
+        database = mongoClient.getDatabase(db);
+    }
 
-            // Ellenőrizze a hívás kimenetét, és ellenőrizze, hogy a parancs sikeres volt-e
+
+    public boolean isConnectionValid() {
+        try
+        {
+            Document ping = database.runCommand(new Document("ping", 1));
             return ping.containsKey("ok") && (Double) ping.get("ok") == 1.0;
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             e.printStackTrace();
-            return false; // Ha bármilyen hiba történt, a kapcsolat érvénytelen
+            return false;
         }
     }
 
@@ -48,7 +54,8 @@ public class MongoDBConnectionManager {
         return mongoClient;
     }
 
-    public void closeClient() {
+    public void closeClient()
+    {
         if (mongoClient != null) {
             mongoClient.close();
         }
@@ -92,7 +99,7 @@ public class MongoDBConnectionManager {
         }
     }
 
-    public void insertGazda(Gazda gazda) {
+    public int insertGazda(Gazda gazda) {
         try {
             gazdakCollection = database.getCollection("gazdak");
             int _id = gazda.get_id();
@@ -116,11 +123,13 @@ public class MongoDBConnectionManager {
                 // Beszúrás az adatbázisba
                 gazdakCollection.insertOne(gazdaDocument);
                 System.out.println("Gazda inserted successfully.");
+                return _id;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        return -1;
     }
 
     public int getMaxId() {
@@ -142,9 +151,6 @@ public class MongoDBConnectionManager {
         }
     }
 
-    public void insertKutyaEx(Kutya kutya) {
-      //  db.kutya.update({_id: kutya.gazda_id},{$push:{kutyak:{nev: kutya.getNev(), fajta: kutya.getFakjta()}})
-    }
 
     public void insertKutya(Kutya kutya) {
         try {
@@ -172,27 +178,29 @@ public class MongoDBConnectionManager {
         }
     }
 
-    public String getGazdakAsString() {
+    public List<String> getGazdakAsList() {
         try {
             gazdakCollection = database.getCollection("gazdak");
 
             FindIterable<Document> gazdakDocuments = gazdakCollection.find();
             MongoCursor<Document> cursor = gazdakDocuments.iterator();
 
-            StringBuilder result = new StringBuilder();
+            List<String> resultList = new ArrayList<>();
             JsonWriterSettings prettyPrint = JsonWriterSettings.builder().indent(true).build();
 
             while (cursor.hasNext()) {
                 Document gazdaDocument = cursor.next();
-                result.append(gazdaDocument.toJson(prettyPrint)).append("\n____________________________________________\n");
+                String jsonAsString = gazdaDocument.toJson(prettyPrint);
+                resultList.add(jsonAsString);
             }
 
-            return result.toString();
+            return resultList;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
 
 
 }

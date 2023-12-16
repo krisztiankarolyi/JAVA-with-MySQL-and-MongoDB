@@ -22,16 +22,25 @@ public class MySQLConnectionManager {
         }
     }
 
+    public MySQLConnectionManager(String url) {
+        try
+        {
+            connection = DriverManager.getConnection("jdbc:mysql://" + url, MYSQL_USER, MYSQL_PASSWORD);
+        }
+
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Connection getConnection() {
         return connection;
     }
 
     public boolean isConnectionValid() {
         try {
-            // Próbáld meg lekérdezni a MySQL verzióját (ez csak egy példa)
             connection.createStatement().executeQuery("SELECT VERSION()");
 
-            // Ha nem dob kivételt, akkor a kapcsolat érvényes
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -177,7 +186,7 @@ public class MySQLConnectionManager {
                 String fajta = resultSet.getString("fajta");
                 int gazdaId = resultSet.getInt("gazda_id");
 
-                Kutya kutya = new Kutya(nev, fajta, gazdaId);
+                Kutya kutya = new Kutya(nev, fajta, gazdaId, id);
                 kutyak.add(kutya);
             }
 

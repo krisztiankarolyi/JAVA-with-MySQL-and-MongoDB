@@ -11,6 +11,12 @@ public class newOwner {
     private JTextField ageTextField;
     private  JButton addToMongoDBButton;
     private  JButton addToMySQLButton;
+
+
+
+
+
+    private  JTextArea commandArea;
     private GUI MainGUI;
 
     public newOwner(GUI MainGUI) {
@@ -63,6 +69,13 @@ public class newOwner {
         gbc.gridy = 2;
         panel.add(addToMongoDBButton, gbc);
 
+        commandArea = new JTextArea("");
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.gridy = 3;
+        commandArea.setEditable(false);
+        panel.add(commandArea, gbc);
+
         addToMySQLButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -87,6 +100,7 @@ public class newOwner {
         Gazda gazda = new Gazda(name, age); // Az id-t majd a MySQL generálja
         Main.mySQLConnectionManager.insertGazda(gazda);
         JOptionPane.showMessageDialog(frame, "Owner added to MySQL successfully");
+        commandArea.setText(generateInsertSQL(gazda));
         MainGUI.refreshMySQLData();
     }
 
@@ -95,10 +109,23 @@ public class newOwner {
         int age = Integer.parseInt(ageTextField.getText());
 
         Gazda gazda = new Gazda(name, age, 0); // Az id-t majd a MongoDB generálja
-        Main.mongoDBConnectionManager.insertGazda(gazda);
+        int id = Main.mongoDBConnectionManager.insertGazda(gazda);
         JOptionPane.showMessageDialog(frame, "Owner added to MongoDB successfully");
+        commandArea.setText(generateInsertJSON(gazda, id));
         MainGUI.refreshMongoData();
 
+    }
+
+    public String generateInsertJSON(Gazda gazda, int id) {
+        return String.format("db.gazdak.insert({ " +
+                        "\"_id\": %d, " +
+                        "\"nev\": \"%s\", " +
+                        "\"kor\": %d });",
+                id, gazda.getNev(), gazda.getKor());
+    }
+    public String generateInsertSQL(Gazda gazda) {
+        return String.format("INSERT INTO gazdak (nev, kor) values (%s, %d)",
+               gazda.getNev(), gazda.getKor());
     }
 
 }

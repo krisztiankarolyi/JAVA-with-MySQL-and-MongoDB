@@ -34,7 +34,7 @@ public class newDog {
         frame.getContentPane().add(panel, BorderLayout.CENTER);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);  // Távolságok beállítása
+        gbc.insets = new Insets(5, 5, 5, 5);
 
         JLabel nameLabel = new JLabel("Név:");
         gbc.gridx = 0;
@@ -109,29 +109,22 @@ public class newDog {
         Kutya kutya = new Kutya(name, breed, owner_id); // Az id-t majd a MySQL generálja
         Main.mySQLConnectionManager.insertKutya(kutya);
         JOptionPane.showMessageDialog(frame, "Dog added to MySQL successfully");
+        commandArea.setText(generateInsertSQL(kutya));
         MainGUI.refreshMySQLData();
     }
 
-    public  String showUpdateJSON(Kutya kutya){
-        return  "{\n" +
-                "  \"update\": \"gazdak\",\n" +
-                "  \"updates\": [\n" +
-                "    {\n" +
-                "      \"q\": {\n" +
-                "        \"_id\": " + kutya.getGazda_id() + "\n" +
-                "      },\n" +
-                "      \"u\": {\n" +
-                "        \"$push\": {\n" +
-                "          \"kutyak\": {\n" +
-                "            \"nev\": \"" + kutya.getNev() + "\",\n" +
-                "            \"fajta\": \"" + kutya.getFajta() + "\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+    public String showUpdateJSON(Kutya kutya) {
+        return String.format("db.gazdak.updateOne(" +
+                        "{ \"_id\": %d }, " +
+                        "{ $push: { \"kutyak\": { \"nev\": \"%s\", \"fajta\": \"%s\" } } });",
+                kutya.getGazda_id(), kutya.getNev(), kutya.getFajta());
     }
+
+    public String generateInsertSQL(Kutya kutya) {
+        return String.format("INSERT INTO kutyak (nev, fajta, gazda_id) values (%s, %s, %d)",
+                kutya.getNev(), kutya.getFajta(), kutya.getGazda_id());
+    }
+
 
     private void addDogToMongoDB() {
         String name = nameTextField.getText();
@@ -145,5 +138,7 @@ public class newDog {
         MainGUI.refreshMongoData();
 
     }
+
+
 
 }
