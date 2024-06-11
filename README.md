@@ -1,4 +1,4 @@
-<h2> JAVA app with SWING GUI for performing MySQL and noSQL (mongoDB) operations. </h2>
+<h2> JAVA app with AWT GUI for performing MySQL and noSQL (mongoDB) operations. </h2>
 
 <h3>
   <ul>
